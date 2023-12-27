@@ -1,0 +1,14 @@
+[
+    {
+        "Name": "Gimp",
+        "Path": "C:/Program Files/GIMP 2/bin/gimp-2.10.exe"
+    },
+    {
+        "Name": "fSpy",
+        "Path": "C:/Program Files/fSpy-1.0.3-win/fspy-opener.exe"
+    },
+    {
+        "Name": "DJV",
+        "Path": "C:/Program Files/DJV2/bin/djv.exe"
+    }
+]
