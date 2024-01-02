@@ -10,11 +10,14 @@ https://prism-pipeline.com/
 
 ## **Plugin Usage**
 
-The OpenWithMenu plugin adds a menu to the Prism2 User Settings menu.  In this menu a user may add file types to be associated with selected icons.  This allows Prism's UI to show icons for file type that are not supported.
+The OpenWithMenu plugin adds a new item to the right-click menu and a sub-menu to the Prism2 User Settings menu.  This plugin allows users to open media files (both in the Media and Library tabs) using a program of choice.  Prism2's default action when double-licking a media item is for it to open in the selected viewer, or the system's default.
 
-For example, at present there is no intergration for SynthEyes.  But when a .sni extension is associated with a SynthEyes icon, Prism2's UI will display the icon correctly.
+**Example usage:**  user needs to open a .png with Photoshop to edit, but then open with fSpy for the alignment.
 
-There is no other functionality besides the UI.
+The menu of OpenWithMenu allows users to select applications to be displayed in the right-click menu.  The user selects the loacation of the application executable, and a short-name that will be displayed in the right-click menu.
+
+
+
 
 
 ## **Installation**
