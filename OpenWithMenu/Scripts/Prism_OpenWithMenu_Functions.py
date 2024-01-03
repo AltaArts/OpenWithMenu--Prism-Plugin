@@ -32,9 +32,8 @@
 # along with Prism.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################
-####################################################
 #
-#           SEND TO MENU PLUGIN
+#          OPEN WITH MENU PLUGIN
 #           by Joshua Breckeen
 #                Alta Arts
 #
@@ -54,7 +53,9 @@ except:
     from PySide.QtCore import *
     from PySide.QtGui import *
 
-import os, subprocess, json
+import os
+import subprocess
+import json
 
 import inspect                                                              #   TESTING
 
@@ -68,8 +69,7 @@ class Prism_OpenWithMenu_Functions(object):
 
         #   Global Settings File
         pluginLocation = os.path.dirname(os.path.dirname(__file__))
-        global settingsFile
-        settingsFile = os.path.join(pluginLocation, "OpenWithMenu_Config.json")
+        self.settingsFile = os.path.join(pluginLocation, "OpenWithMenu_Config.json")
 
         #   Callbacks
         self.core.registerCallback("textureLibraryTextureContextMenuRequested", self.textureLibraryTextureContextMenuRequested, plugin=self)
@@ -259,7 +259,7 @@ class Prism_OpenWithMenu_Functions(object):
 
         #   Loads Global Settings File JSON
         try:
-            with open(settingsFile, "r") as json_file:
+            with open(self.settingsFile, "r") as json_file:
                 data = json.load(json_file)
                 return data
             
@@ -284,7 +284,7 @@ class Prism_OpenWithMenu_Functions(object):
                 data.append({"Name": name, "Path": location})
 
         #   Saves to Global JSON File
-        with open(settingsFile, "w") as json_file:
+        with open(self.settingsFile, "w") as json_file:
             json.dump(data, json_file, indent=4)
 
 

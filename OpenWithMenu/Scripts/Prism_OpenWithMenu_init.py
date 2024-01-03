@@ -34,7 +34,7 @@
 ####################################################
 ####################################################
 #
-#           SEND TO MENU PLUGIN
+#          OPEN WITH MENU PLUGIN
 #           by Joshua Breckeen
 #                Alta Arts
 #
