@@ -57,8 +57,6 @@ import os
 import subprocess
 import json
 
-import inspect                                                              #   TESTING
-
 from PrismUtils.Decorators import err_catcher_plugin as err_catcher
 
 
@@ -97,14 +95,8 @@ class Prism_OpenWithMenu_Functions(object):
             return
         
         currentFrame = origin.getCurrentFrame()
-
-#        self.core.popup(f"currentFrame:   {currentFrame}")                  #   TESTING
-
         filePath = origin.seq[currentFrame]
 
-#        self.core.popup(f"filePath:   {filePath}")                          #   TESTING
-
-        
         if os.path.splitext(filePath)[1] in self.core.media.videoFormats:
             return
 
