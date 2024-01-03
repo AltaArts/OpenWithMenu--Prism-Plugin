@@ -10,11 +10,11 @@ https://prism-pipeline.com/
 
 ## **Plugin Usage**
 
-The OpenWithMenu plugin adds a new item to the right-click menu and a sub-menu to the Prism2 User Settings menu.  This plugin allows users to open media files (both in the Media and Library tabs) using a program of choice.  Prism2's default action when double-licking a media item is for it to open in the selected viewer, or the system's default.
+The OpenWithMenu plugin adds a new item to the right-click menu and a sub-menu to the Prism2 User Settings menu.  This plugin allows users to open media files (both in the Media and Library tabs) using a program of choice.  Prism2's default action when double-clicking a media item is to open in the selected viewer, or the system's default.
 
 **Example usage:**  user needs to open a .png with Photoshop to edit, but then open with fSpy for the alignment.
 
-The menu of OpenWithMenu allows users to select applications to be displayed in the right-click menu.  The user selects the loacation of the application executable, and a short-name that will be displayed in the right-click menu.
+The menu of OpenWithMenu allows users to select applications to be displayed in the right-click menu.  The user selects the location of the application executable, and a short-name that will be displayed in the right-click menu.
 
 
 
