@@ -177,8 +177,10 @@ class Prism_OpenWithMenu_Functions(object):
         tw_openWith.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         tw_openWith.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
-        #   Sets initial Table size
+        # Configure table options
         tw_openWith.setMinimumHeight(300)  # Adjust the value as needed
+        tw_openWith.setSelectionBehavior(QTableWidget.SelectRows)
+        tw_openWith.setSelectionMode(QTableWidget.SingleSelection)
 
         #   Adds Buttons
         w_openWith = QWidget()
@@ -210,6 +212,10 @@ class Prism_OpenWithMenu_Functions(object):
             tw_openWith.insertRow(row_position)
             tw_openWith.setItem(row_position, 0, QTableWidgetItem(item.get("Name", "")))
             tw_openWith.setItem(row_position, 1, QTableWidgetItem(item.get("Path", "")))
+
+        #   Adds tooltip to table
+        tip = "Programs available to open Media items in the Media and Library tabs."
+        tw_openWith.setToolTip(tip)
 
         # Add Tab to User Settings
         origin.addTab(origin.w_openWith, "Open with Menu")
