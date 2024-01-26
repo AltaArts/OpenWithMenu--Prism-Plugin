@@ -94,11 +94,12 @@ class Prism_OpenWithMenu_Functions(object):
         if not origin.seq:
             return
         
-        currentFrame = origin.getCurrentFrame()
-        filePath = origin.seq[currentFrame]
-
-        if os.path.splitext(filePath)[1] in self.core.media.videoFormats:
-            return
+        #   This helps when a media file is activly playing in the Viewer
+        try:
+            currentFrame = origin.getCurrentFrame()
+            filePath = origin.seq[currentFrame]
+        except:
+            filePath = origin.seq[0]
 
         #   Adds Open with Menu
         openWithMenu = QMenu("Open with", origin)
