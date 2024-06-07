@@ -123,9 +123,6 @@ class Prism_OpenWithMenu_Functions(object):
 
         filePath = origin.path
 
-        if os.path.splitext(filePath)[1] in self.core.media.videoFormats:
-            return
-
         #   Adds Open with Menu
         OpenWithMenu = QMenu("Open with", origin)
         menu.addMenu(OpenWithMenu)
