@@ -69,6 +69,7 @@ class Prism_OpenWithMenu_Functions(object):
         self.core.registerCallback("textureLibraryTextureContextMenuRequested", self.textureLibraryTextureContextMenuRequested, plugin=self)
         self.core.registerCallback("mediaPlayerContextMenuRequested", self.mediaPlayerContextMenuRequested, plugin=self)
         self.core.registerCallback("userSettings_loadUI", self.userSettings_loadUI, plugin=self)
+        self.core.registerCallback("onUserSettingsSave", self.saveSettings, plugin=self)
         
 
     # if returns true, the plugin will be loaded by Prism
@@ -76,6 +77,7 @@ class Prism_OpenWithMenu_Functions(object):
     def isActive(self):
         return True
     
+
     #   Called with Callback
     @err_catcher(name=__name__)
     def mediaPlayerContextMenuRequested(self, origin, menu):        #   Adds OpenWithMenu to Media Image Right-Click-Menu
@@ -147,10 +149,10 @@ class Prism_OpenWithMenu_Functions(object):
         cmd = f'"{progPath}" "{filePath}"'
         subprocess.Popen(cmd)
 
+
     #   Called with Callback
     @err_catcher(name=__name__)
     def userSettings_loadUI(self, origin):      #   ADDING "Open with Menu" TO SETTINGS
-
         #   Loads Settings File
         openWithList = self.loadSettings()
         headerLabels = ["Name", "Path"]
@@ -164,59 +166,88 @@ class Prism_OpenWithMenu_Functions(object):
         lo_openWith = QVBoxLayout()
         gb_openWith.setLayout(lo_openWith)
 
-        tw_openWith = QTableWidget()
-        tw_openWith.setColumnCount(len(headerLabels))
-        tw_openWith.setHorizontalHeaderLabels(headerLabels)
-        tw_openWith.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        tw_openWith.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+        self.tw_openWith = QTableWidget()
+        self.tw_openWith.setColumnCount(len(headerLabels))
+        self.tw_openWith.setHorizontalHeaderLabels(headerLabels)
+        self.tw_openWith.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.tw_openWith.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
         # Configure table options
-        tw_openWith.setMinimumHeight(300)  # Adjust the value as needed
-        tw_openWith.setSelectionBehavior(QTableWidget.SelectRows)
-        tw_openWith.setSelectionMode(QTableWidget.SingleSelection)
+        self.tw_openWith.setMinimumHeight(300)  # Adjust the value as needed
+        self.tw_openWith.setSelectionBehavior(QTableWidget.SelectRows)
+        self.tw_openWith.setSelectionMode(QTableWidget.SingleSelection)
 
         #   Adds Buttons
         w_openWith = QWidget()
         lo_openWithButtons = QHBoxLayout()
-        b_addoOpenWith = QPushButton("Add")
-        b_removeoOpenWith = QPushButton("Remove")
+
+        b_moveItemUp = QPushButton("Move Up")
+        b_moveItemDn = QPushButton("Move Down")
+        b_addOpenWith = QPushButton("Add...")
+        b_removeOpenWith = QPushButton("Remove")
 
         w_openWith.setLayout(lo_openWithButtons)
-        lo_openWithButtons.addStretch()
-        lo_openWithButtons.addWidget(b_addoOpenWith)
-        lo_openWithButtons.addWidget(b_removeoOpenWith)
 
-        lo_openWith.addWidget(tw_openWith)
+        lo_openWithButtons.addWidget(b_moveItemUp)
+        lo_openWithButtons.addWidget(b_moveItemDn)
+
+        # Add stretch to separate the buttons
+        lo_openWithButtons.addStretch()
+
+        lo_openWithButtons.addWidget(b_addOpenWith)
+        lo_openWithButtons.addWidget(b_removeOpenWith)
+
+        lo_openWith.addWidget(self.tw_openWith)
         lo_openWith.addWidget(w_openWith)
         origin.lo_openWith.addWidget(gb_openWith)
 
         #   Sets Columns
-        tw_openWith.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self.tw_openWith.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         #   Makes ReadOnly
-        tw_openWith.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tw_openWith.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         #   Executes button actions
-        b_addoOpenWith.clicked.connect(lambda: self.addOpenWithExe(origin, tw_openWith))
-        b_removeoOpenWith.clicked.connect(lambda: self.removeOpenWithExe(origin, tw_openWith))
+        b_moveItemUp.clicked.connect(lambda: self.moveItemUp())
+        b_moveItemDn.clicked.connect(lambda: self.moveItemDn())
+        b_addOpenWith.clicked.connect(lambda: self.addOpenWithExe(origin))
+        b_removeOpenWith.clicked.connect(lambda: self.removeOpenWithExe())
 
         #   Populates lists from Settings File Data
         for item in openWithList:
-            row_position = tw_openWith.rowCount()
-            tw_openWith.insertRow(row_position)
-            tw_openWith.setItem(row_position, 0, QTableWidgetItem(item.get("Name", "")))
-            tw_openWith.setItem(row_position, 1, QTableWidgetItem(item.get("Path", "")))
+            row_position = self.tw_openWith.rowCount()
+            self.tw_openWith.insertRow(row_position)
+            self.tw_openWith.setItem(row_position, 0, QTableWidgetItem(item.get("Name", "")))
+            self.tw_openWith.setItem(row_position, 1, QTableWidgetItem(item.get("Path", "")))
 
         #   Adds tooltip to table
         tip = "Programs available to open Media items in the Media and Library tabs."
-        tw_openWith.setToolTip(tip)
+        self.tw_openWith.setToolTip(tip)
+
+        tip = "Move selected item up in list."
+        b_moveItemUp.setToolTip(tip)
+
+        tip = "Move selected item down in list."
+        b_moveItemDn.setToolTip(tip)
+
+        tip = "Opens dialogue to choose OpenWith program."
+        b_addOpenWith.setToolTip(tip)
+
+        tip = "Removes selected item from list."
+        b_removeOpenWith.setToolTip(tip)
+
+        # Initialize button states
+        self.updateButtonStates(b_moveItemUp, b_moveItemDn, b_removeOpenWith)
+
+        # Connect item selection changed signal to the method
+        self.tw_openWith.itemSelectionChanged.connect(lambda: self.updateButtonStates(b_moveItemUp, b_moveItemDn, b_removeOpenWith))
+
 
         # Add Tab to User Settings
         origin.addTab(origin.w_openWith, "Open with Menu")
 
 
     @err_catcher(name=__name__)
-    def addOpenWithExe(self, origin, tw_openWith):
-
+    def addOpenWithExe(self, origin):
         #   Calls Custon Dialog
         dialog = AddOpenWithDialog(origin)
 
@@ -225,30 +256,56 @@ class Prism_OpenWithMenu_Functions(object):
             name, path = dialog.getValues()
 
             if name and path:
-                row_position = tw_openWith.rowCount()
-                tw_openWith.insertRow(row_position)
-                tw_openWith.setItem(row_position, 0, QTableWidgetItem(name))
-                tw_openWith.setItem(row_position, 1, QTableWidgetItem(path))
-
-            #   Saves UI List to JSON file
-            self.saveSettings(tw_openWith)
+                row_position = self.tw_openWith.rowCount()
+                self.tw_openWith.insertRow(row_position)
+                self.tw_openWith.setItem(row_position, 0, QTableWidgetItem(name))
+                self.tw_openWith.setItem(row_position, 1, QTableWidgetItem(path))
 
 
     @err_catcher(name=__name__)
-    def removeOpenWithExe(self, origin, tw_openWith):
-
-        selectedRow = tw_openWith.currentRow()
+    def removeOpenWithExe(self):
+        selectedRow = self.tw_openWith.currentRow()
 
         if selectedRow != -1:
-            tw_openWith.removeRow(selectedRow)
+            self.tw_openWith.removeRow(selectedRow)
 
-            #   Saves UI List to JSON file
-            self.saveSettings(tw_openWith)
+
+    @err_catcher(name=__name__)
+    def updateButtonStates(self, b_moveItemUp, b_moveItemDn, b_removeOpenWith):
+        selectedItems = self.tw_openWith.selectedItems()
+        hasSelection = bool(selectedItems)
+        
+        b_moveItemUp.setEnabled(hasSelection)
+        b_moveItemDn.setEnabled(hasSelection)
+        b_removeOpenWith.setEnabled(hasSelection)
+
+
+    @err_catcher(name=__name__)
+    def moveItemUp(self):
+        currentRow = self.tw_openWith.currentRow()
+        if currentRow > 0:
+            self.tw_openWith.insertRow(currentRow - 1)
+            for column in range(self.tw_openWith.columnCount()):
+                item = self.tw_openWith.takeItem(currentRow + 1, column)
+                self.tw_openWith.setItem(currentRow - 1, column, item)
+            self.tw_openWith.removeRow(currentRow + 1)
+            self.tw_openWith.setCurrentCell(currentRow - 1, 0)
+
+
+    @err_catcher(name=__name__)
+    def moveItemDn(self):
+        currentRow = self.tw_openWith.currentRow()
+        if currentRow < self.tw_openWith.rowCount() - 1:
+            self.tw_openWith.insertRow(currentRow + 2)
+            for column in range(self.tw_openWith.columnCount()):
+                item = self.tw_openWith.takeItem(currentRow, column)
+                self.tw_openWith.setItem(currentRow + 2, column, item)
+            self.tw_openWith.removeRow(currentRow)
+            self.tw_openWith.setCurrentCell(currentRow + 1, 0)
 
 
     @err_catcher(name=__name__)
     def loadSettings(self):
-
         #   Loads Global Settings File JSON
         try:
             with open(self.settingsFile, "r") as json_file:
@@ -260,14 +317,13 @@ class Prism_OpenWithMenu_Functions(object):
 
 
     @err_catcher(name=__name__)
-    def saveSettings(self, tw_openWith):
-
+    def saveSettings(self, origin=None):
         data = []
 
         #   Populates data[] from UI List
-        for row in range(tw_openWith.rowCount()):
-            nameItem = tw_openWith.item(row, 0)
-            pathItem = tw_openWith.item(row, 1)
+        for row in range(self.tw_openWith.rowCount()):
+            nameItem = self.tw_openWith.item(row, 0)
+            pathItem = self.tw_openWith.item(row, 1)
 
             if nameItem and pathItem:
                 name = nameItem.text()
