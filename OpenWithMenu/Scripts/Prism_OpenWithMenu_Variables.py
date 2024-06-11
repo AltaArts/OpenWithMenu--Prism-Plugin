@@ -51,7 +51,7 @@ import os
 
 class Prism_OpenWithMenu_Variables(object):
     def __init__(self, core, plugin):
-        self.version = "v2.0.2-1.5"
+        self.version = "v2.0.2-1.6"
         self.pluginName = "OpenWithMenu"
         self.pluginType = "Custom"
         self.platforms = ["Windows", "Linux", "Darwin"]

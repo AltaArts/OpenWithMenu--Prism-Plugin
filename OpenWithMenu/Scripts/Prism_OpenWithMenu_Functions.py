@@ -66,17 +66,47 @@ class Prism_OpenWithMenu_Functions(object):
         self.settingsFile = os.path.join(pluginLocation, "OpenWithMenu_Config.json")
 
         #   Callbacks
-        self.core.registerCallback("textureLibraryTextureContextMenuRequested", self.textureLibraryTextureContextMenuRequested, plugin=self)
+        self.core.registerCallback("openPBFileContextMenu", self.openPBFileContextMenu, plugin=self)
         self.core.registerCallback("mediaPlayerContextMenuRequested", self.mediaPlayerContextMenuRequested, plugin=self)
+        self.core.registerCallback("textureLibraryTextureContextMenuRequested", self.textureLibraryTextureContextMenuRequested, plugin=self)
         self.core.registerCallback("userSettings_loadUI", self.userSettings_loadUI, plugin=self)
         self.core.registerCallback("onUserSettingsSave", self.saveSettings, plugin=self)
         
-
     # if returns true, the plugin will be loaded by Prism
     @err_catcher(name=__name__)
     def isActive(self):
         return True
     
+
+    #   Called with Callback
+    @err_catcher(name=__name__)
+    def openPBFileContextMenu(self, origin, rcmenu, filePath):        #   Adds OpenWithMenu to Scene Browser Right-Click-Menu
+
+        curDep = origin.getCurrentDepartment()
+        curTask = origin.getCurrentTask()
+        if not curDep or not curTask:
+            return
+        
+        if not os.path.isfile(filePath):
+            return
+
+        #   Adds Open with Menu
+        openWithMenu = QMenu("Open with", origin)
+        rcmenu.addMenu(openWithMenu)
+
+        #   Loads SettingsFile
+        openwithList = self.loadSettings()
+
+        #   Populates OpenWithMenu and connects function calls
+        for item in openwithList:
+            progName = item["Name"]
+            progPath = item["Path"]
+
+            openWithAct = QAction(progName, openWithMenu)
+            openWithAct.triggered.connect(lambda x=None, progPath=progPath: self.openWithProgram(progPath, filePath))
+            openWithMenu.addAction(openWithAct)
+
+
 
     #   Called with Callback
     @err_catcher(name=__name__)
